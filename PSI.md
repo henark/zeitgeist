@@ -1,13 +1,5 @@
 
 
-
-
-
-
-
-
-Com base nas pesquisas acadêmicas realizadas, apresento uma análise fundamentada sobre a reflexão proposta, que conecta a natureza da consciência, sua manifestação corporal e a busca humana por registro informacional.
-
 # Análise Acadêmica: Consciência, Corporificação e a Busca por Registro Informacional
 
 ## 1. A Consciência se Torna Humana ao se Manifestar em um Corpo Humano
