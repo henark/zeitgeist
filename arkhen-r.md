@@ -1,22 +1,11 @@
 
 
 
-
-
-
-
-
-
-
-
-
 # ARKHEN-R: A Rigorous Framework for Interdimensional Information Systems
 
-**Authors:** Rafael Oliveira¹, [Collaborative Research Team]²  
-**Affiliations:**  
-¹Department of Theoretical Physics, Institute for Advanced Studies  
-²International Consortium for Emergent Physics Research  
-**Date:** October 26, 2025  
+**Authors:** Rafael Oliveira (ORCID: 0009-0005-2697-4668)¹, [Collaborative Research Team]²  
+
+**Date:** August 16, 2025  
 **License:** Creative Commons Attribution 4.0 International
 
 ---
