@@ -1,4 +1,4 @@
-# The Materialization of Archetypal Patterns in Information Science and Quantum Computing (2025)
+# The Materialization of Archetypal Patterns in Information Science and Quantum Computing 
 
 ## Abstract
 
