@@ -3,7 +3,7 @@ Name: connector_service
 Version: 0.1.0
 Summary: Unified blockchain connector service (Jackett‑style) for TimeKeeper OS
 Requires-Python: >=3.10
-Requires-Dist: litestar>=2.5
+Requires-Dist: litestar[standard]>=2.5
 Requires-Dist: pydantic>=2.5
 Requires-Dist: web3>=6.12
 Requires-Dist: aiosqlite>=0.19
