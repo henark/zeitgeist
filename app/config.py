@@ -13,6 +13,10 @@ class Settings(BaseSettings):
         "http://localhost:9000",
         description="TimeKeeper OS SDK endpoint"
     )
+    ARBITRUM_RPC_URL: str = Field(
+        "https://arb1.arbitrum.io/rpc",
+        description="Arbitrum JSON-RPC endpoint"
+    )
 
     class Config:
         env_file = ".env"
