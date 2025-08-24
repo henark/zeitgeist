@@ -9,6 +9,7 @@ dependencies = [
     "web3>=6.12",          # Ethereum client
     "aiosqlite>=0.19",     # optional local cache
     "httpx>=0.27",         # async HTTP client for other chains
+    "pydantic-settings>=2.0", # For settings management
 ]
 
 [build-system]
