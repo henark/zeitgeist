@@ -17,4 +17,4 @@ async def latest_block(chain: str, timekeeper: TimeKeeperClient) -> dict:
         "chronon_id": block['chronon_id']
     }
 
-router = Router(path="/connector", route_handlers=[latest_block])
+connector_router = Router(path="/connector", route_handlers=[latest_block])
