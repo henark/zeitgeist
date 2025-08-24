@@ -2,59 +2,60 @@
 pragma solidity ^0.8.20;
 
 /**
- * @title TimeChain
+ * @title TimeChain (Nomic Upgrade)
  * @author Jules, AI Engineer
- * @notice This contract is a prototype implementation of the TimeChain concept,
- * designed to run on the Ethereum Virtual Machine (EVM). It creates a
- * verifiable, on-chain timeline by linking discrete "Chronon" blocks.
+ * @notice This contract is a self-contained implementation of a TimeChain that is also
+ * an ERC-20 token ($NOM). It demonstrates the "Nomic" principle, where the system's
+ * rules can evolve. The fundamental rule change implemented here is the introduction
+ * of a native, transferable token to create an economic engine.
  *
- * @dev This implementation requires a hybrid on-chain/off-chain architecture.
- * The time-consuming VDF computation is performed by off-chain "Keeper" nodes.
- * These Keepers then submit the VDF proof to this contract for verification
- * and the minting of a new Chronon.
+ * @dev This contract includes basic ERC-20 functionality directly to be self-contained.
+ * It features a "Proof-of-Time" mining mechanism where Keepers are rewarded with $NOM
+ * for extending the on-chain timeline.
  */
 contract TimeChain {
 
     // =================================================================
-    //  STATE VARIABLES
+    // ERC-20 State Variables
     // =================================================================
+    string public constant name = "Nomic Time";
+    string public constant symbol = "NOM";
+    uint8 public constant decimals = 18;
+    uint256 public totalSupply;
 
-    // The core data structure for a single unit of time.
+    mapping(address => uint256) public balanceOf;
+    mapping(address => mapping(address => uint256)) public allowance;
+
+    // =================================================================
+    // TimeChain State Variables
+    // =================================================================
     struct Chronon {
-        uint256 blockHeight;    // The height of the TimeChain.
-        uint256 timestamp;      // The real-world timestamp when the Chronon was minted.
-        bytes32 challenge;      // The challenge used to generate the VDF proof for the *next* Chronon.
-        bytes proof;            // The VDF proof submitted for *this* Chronon.
+        uint256 blockHeight;
+        uint256 timestamp;
+        bytes32 challenge;
+        bytes proof;
     }
 
-    // The immutable, append-only timeline. The array index is the blockHeight.
     Chronon[] public timechain;
-
-    // The address authorized to submit new Chronons.
-    // In a production system, this could be a permissionless role or a DAO-controlled multisig.
     address public keeper;
-
-    // The target time interval (in seconds) for each Chronon block.
-    // This defines the "tick" rate of the TimeChain.
-    uint256 public constant CHRONON_INTERVAL = 10; // e.g., 10 seconds
+    uint256 public constant CHRONON_INTERVAL = 10; // 10 seconds
+    uint256 public constant MINT_REWARD = 10 * 10**18; // Reward 10 NOM per chronon
 
     // =================================================================
-    //  EVENTS
+    // Events
     // =================================================================
-
-    event NewChronon(uint256 indexed blockHeight, uint256 timestamp, address indexed submittedBy);
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+    event NewChronon(uint256 indexed blockHeight, uint256 timestamp, address indexed submittedBy, uint256 reward);
     event KeeperUpdated(address indexed newKeeper);
 
     // =================================================================
-    //  CONSTRUCTOR
+    // Constructor
     // =================================================================
-
     constructor(address _initialKeeper) {
         keeper = _initialKeeper;
 
         // Create the Genesis Chronon (Block 0)
-        // The challenge for the next block is derived from a predictable source,
-        // like the hash of the genesis block details.
         bytes32 genesisChallenge = keccak256(abi.encodePacked(block.chainid, address(this), "GENESIS"));
         timechain.push(Chronon({
             blockHeight: 0,
@@ -62,94 +63,87 @@ contract TimeChain {
             challenge: genesisChallenge,
             proof: "GENESIS_PROOF"
         }));
+        emit NewChronon(0, block.timestamp, msg.sender, 0);
 
-        emit NewChronon(0, block.timestamp, msg.sender);
+        // Mint initial supply for the ecosystem/treasury (optional)
+        _mint(msg.sender, 1_000_000 * 10**18);
     }
 
     // =================================================================
-    //  KEEPER-ONLY FUNCTIONS (The "Heartbeat" of the Chain)
+    // Core TimeChain Function ("Proof-of-Time Mining")
     // =================================================================
-
-    /**
-     * @notice The core function for extending the timeline.
-     * @dev Called by an off-chain Keeper after it has computed the VDF.
-     * The Keeper must compute VDF(challenge, CHRONON_INTERVAL) and submit the result.
-     * @param _proof The VDF proof from the off-chain computation.
-     */
     function submitNewChronon(bytes memory _proof) external {
         require(msg.sender == keeper, "TimeChain: Not the authorized Keeper.");
-
         Chronon memory latestChronon = timechain[timechain.length - 1];
-
-        // 1. Verify that enough real time has passed since the last block.
         require(block.timestamp >= latestChronon.timestamp + CHRONON_INTERVAL, "TimeChain: Interval not yet passed.");
-
-        // 2. Verify the submitted VDF proof.
-        //    --> This is a placeholder for actual VDF verification logic.
-        //    --> A real implementation would require a precompiled contract or complex assembly.
         require(verifyVDF(latestChronon.challenge, _proof), "TimeChain: Invalid VDF proof.");
 
-        // 3. All checks passed. Mint the new Chronon.
+        // Mint new tokens as a reward for the Keeper
+        _mint(keeper, MINT_REWARD);
+
+        // Create and store the new Chronon
         uint256 newBlockHeight = timechain.length;
         bytes32 nextChallenge = keccak256(abi.encodePacked(latestChronon.challenge, _proof));
-
         timechain.push(Chronon({
             blockHeight: newBlockHeight,
             timestamp: block.timestamp,
             challenge: nextChallenge,
             proof: _proof
         }));
-
-        emit NewChronon(newBlockHeight, block.timestamp, msg.sender);
+        emit NewChronon(newBlockHeight, block.timestamp, keeper, MINT_REWARD);
     }
 
     // =================================================================
-    //  VDF VERIFICATION (Placeholder)
+    // ERC-20 Transfer Functions
     // =================================================================
+    function transfer(address _to, uint256 _value) public returns (bool success) {
+        require(balanceOf[msg.sender] >= _value, "ERC20: transfer amount exceeds balance");
+        balanceOf[msg.sender] -= _value;
+        balanceOf[_to] += _value;
+        emit Transfer(msg.sender, _to, _value);
+        return true;
+    }
 
-    /**
-     * @dev Placeholder for VDF proof verification. In a real system, this would be
-     * a call to a highly optimized cryptographic library or a precompiled contract.
-     * For this prototype, it simply returns true.
-     */
-    function verifyVDF(bytes32 _challenge, bytes memory _proof) internal pure returns (bool) {
-        // To avoid compilation warnings about unused parameters.
-        // In a real implementation, these would be used.
-        bytes32 challenge = _challenge;
-        bytes memory proof = _proof;
-        challenge;
-        proof;
+    function approve(address _spender, uint256 _value) public returns (bool success) {
+        allowance[msg.sender][_spender] = _value;
+        emit Approval(msg.sender, _spender, _value);
+        return true;
+    }
 
-        // Placeholder: a real verification function would go here.
+    function transferFrom(address _from, address _to, uint256 _value) public returns (bool success) {
+        require(_value <= balanceOf[_from], "ERC20: transfer amount exceeds balance");
+        require(_value <= allowance[_from][msg.sender], "ERC20: transfer amount exceeds allowance");
+        balanceOf[_from] -= _value;
+        balanceOf[_to] += _value;
+        allowance[_from][msg.sender] -= _value;
+        emit Transfer(_from, _to, _value);
         return true;
     }
 
     // =================================================================
-    //  ADMIN & VIEW FUNCTIONS
+    // Internal & View Functions
     // =================================================================
+    function _mint(address _to, uint256 _value) internal {
+        require(_to != address(0), "ERC20: mint to the zero address");
+        totalSupply += _value;
+        balanceOf[_to] += _value;
+        emit Transfer(address(0), _to, _value);
+    }
 
-    /**
-     * @notice Allows the owner to update the authorized Keeper address.
-     */
+    function verifyVDF(bytes32 _challenge, bytes memory _proof) internal pure returns (bool) {
+        // Placeholder for VDF verification logic.
+        return true;
+    }
+
     function setKeeper(address _newKeeper) external {
-        // In a real system, this would be controlled by `onlyOwner` or a DAO vote.
-        // For simplicity, leaving it open in this prototype.
+        // In a real system, this should be controlled by governance.
+        require(msg.sender == keeper, "TimeChain: Only current keeper can set new keeper in this prototype");
         require(_newKeeper != address(0), "TimeChain: Cannot set keeper to zero address.");
         keeper = _newKeeper;
         emit KeeperUpdated(_newKeeper);
     }
 
-    /**
-     * @notice Returns the total number of Chronons in the timeline.
-     */
     function getChainLength() external view returns (uint256) {
         return timechain.length;
-    }
-
-    /**
-     * @notice Returns the most recently minted Chronon.
-     */
-    function getLatestChronon() external view returns (Chronon memory) {
-        return timechain[timechain.length - 1];
     }
 }
