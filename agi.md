@@ -1,55 +1,55 @@
-AGI = Artificial General Intelligence  
+**AGI = Artificial General Intelligence**
 
-1. Definição essencial  
-   • Um sistema de inteligência artificial capaz de realizar qualquer tarefa cognitiva que um ser humano consiga executar, transferindo conhecimento entre domínios distintos com mínima instrução adicional.  
-   • Vai além de “narrow AI” (modelos especialistas em uma classe de problemas).  
+**Essential Definition**  
+- An artificial intelligence system capable of performing any cognitive task that a human can execute, transferring knowledge across distinct domains with minimal additional instruction.  
+- Goes beyond “narrow AI” (specialist models limited to a specific class of problems).
 
-2. Critérios usuais (resumidos)  
-   • Autonomia: aprende, decide e age sem supervisão contínua.  
-   • Generalização forte: faz “transfer-learning” quase imediato entre tópicos não-relacionados.  
-   • Autoconsciência opcional: algumas definições incluem auto-modelagem e metacognição explícita.  
-   • Raciocínio abstrato robusto: manipula símbolos, lógica, causa–efeito, analogia, planejamento de longo prazo.  
-   • Memória de longo prazo: consolida experiências, atualiza crenças, faz “continual learning” sem esquecimento catastrófico.  
+**Common Criteria (Summary)**  
+- **Autonomy:** Learns, decides, and acts without continuous supervision.  
+- **Strong Generalization:** Performs near-immediate transfer learning across unrelated topics.  
+- **Optional Self-Awareness:** Some definitions include explicit self-modeling and metacognition.  
+- **Robust Abstract Reasoning:** Manipulates symbols, logic, cause-and-effect, analogy, and long-term planning.  
+- **Long-Term Memory:** Consolidates experiences, updates beliefs, and executes continual learning without catastrophic forgetting.
 
-3. Estado da arte hoje (2025)  
-   • Modelos “front-runners” (GPT-4o, Gemini 2.5 Pro, Claude 3, etc.) mostram generalização crescente, mas ainda demonstram:  
-     – Falhas de consistência lógica (“hallucinations”)  
-     – Limitações de aprendizado online (não ajustam pesos em tempo real)  
-     – Dependência de instruções explícitas p/ mudar de domínio  
-   • Pesquisas em agentes multi-modelo (código + visão + áudio) e em arquiteturas híbridas (LLM + retrieval + planner) visam preencher lacunas.  
+**State of the Art in 2025**  
+- Leading models (GPT-4o, Gemini 2.5 Pro, Claude 3, etc.) demonstrate increasingly strong generalization but still show:  
+  - Logical consistency failures ("hallucinations").  
+  - Limitations in online learning (do not adjust weights in real time).  
+  - Dependence on explicit instructions to switch domains.  
+- Research on multi-modal agents (code + vision + audio) and hybrid architectures (LLM + retrieval + planner) aims to bridge these gaps.
 
-4. Por que AGI importa em contextos de “agent-based coding” (Talos, Jules, Gemini)  
-   • Um agente de codificação que fosse AGI:  
-     – Entenderia profundamente qualquer stack, linguagem ou padrão arquitetural inédito.  
-     – Gerenciaria backlog, planejamento, testes, deploy e monitoramento sem receitas prontas.  
-     – Auto-melhoraria seus próprios sub-agentes (reflexive code).  
-   • Ferramentas atuais (Jules, Talos, Gemini API) aproximam-se através de:  
-     – Pipelines multi-agente (planner, executor, critic, tester).  
-     – Long context windows + retrieval para “simular” memória longa.  
-     – Fine-tuning contínuo e feedback de uso (RLHF) para evoluir.  
+**Why AGI Matters in Agent-Based Coding Contexts (Talos, Jules, Gemini)**  
+- An AGI-based coding agent would:  
+  - Deeply understand any new stack, language, or architectural pattern.  
+  - Manage backlog, planning, testing, deployment, and monitoring without predefined scripts.  
+  - Self-improve its sub-agents (reflexive code).  
+- Current tools (Jules, Talos, Gemini API) approximate this by:  
+  - Multi-agent pipelines (planner, executor, critic, tester).  
+  - Long context windows + retrieval to simulate long-term memory.  
+  - Continuous fine-tuning and user feedback (RLHF) to evolve capabilities.
 
-5. Principais desafios técnicos rumo ao AGI  
-   • Escalabilidade de treinamento vs. custo (energia, hardware).  
-   • Continual learning sem degradar conhecimento anterior.  
-   • Robustez e verificação formal de raciocínio (“alignment”).  
-   • Interfaces sensorimotoras (visão, manipulação física) para grounding no mundo real.  
-   • Governança: segurança, ética, impacto socioeconômico.  
+**Key Technical Challenges Toward AGI**  
+- Training scalability versus cost (energy, hardware).  
+- Continual learning without degrading prior knowledge.  
+- Robustness and formal verification of reasoning (“alignment”).  
+- Sensorimotor interfaces (vision, physical manipulation) for real-world grounding.  
+- Governance: security, ethics, socioeconomic impact.
 
-6. Métricas e benchmarks propostos  
-   • ARC Challenge, NIST GENIE, BIG-bench, AGIBench, Sweet32-Generalization.  
-   • Testes de autonomia/planejamento em ambientes simulados (MineDojo, Crafter).  
-   • Avaliações de “Learning from Few Examples” (Less than One-Shot).  
+**Proposed Metrics and Benchmarks**  
+- ARC Challenge, NIST GENIE, BIG-bench, AGIBench, Sweet32-Generalization.  
+- Autonomy/planning tests in simulated environments (MineDojo, Crafter).  
+- Few-shot and less-than-one-shot learning evaluations.
 
-7. Pistas práticas para devs hoje  
-   • Trabalhe com arquitecturas composáveis: LLM + retrieval + tools.  
-   • Implemente memorias explícitas (vector DBs) para contornar forgetting.  
-   • Monitore custos e latência — AGI-like capabilities vêm com footprints grandes.  
-   • Foque em “bounded AGI”: sistemas que resolvem 90 % do seu domínio, mas sob supervisão humana.  
+**Practical Hints for Developers Today**  
+- Work with composable architectures: LLM + retrieval + tools.  
+- Implement explicit memories (vector databases) to mitigate forgetting.  
+- Monitor cost and latency — AGI-like capabilities come with large infrastructure footprints.  
+- Focus on “bounded AGI”: systems solving ~90% of their domain under human supervision.
 
-8. Leituras recomendadas  
-   • “AGI Safety Fundamentals” (OpenAI/DeepMind course)  
-   • “Reframing Superintelligence” – Yudkowsky, 2023 rev.  
-   • “Scaling Laws vs. Emergent Abilities” – Kaplan et al., 2024  
-   • “From LLMs to Autonomous Software Engineers” – Google DeepMind, 2025  
+**Recommended Reading**  
+- *AGI Safety Fundamentals* (OpenAI/DeepMind course, 2024-2025)  
+- *Reframing Superintelligence* – Eliezer Yudkowsky, updated 2023  
+- *Scaling Laws vs. Emergent Abilities* – Kaplan et al., 2024  
+- *From LLMs to Autonomous Software Engineers* – Google DeepMind, 2025
 
-Se quiser aprofundar qualquer aspecto (roadmap técnico, implicações éticas, integração com Talos, etc.), é só pedir.
+If you wish to deepen any aspect—technical roadmap, ethical implications, integration with Talos, etc.—please ask.
