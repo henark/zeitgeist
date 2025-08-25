@@ -1,0 +1,27 @@
+[
+  {
+    "comment": "multiply generator by scalar (empty point)",
+    "script": [
+      "",
+      "0000000000000000000000000000000000000000000000000000000000000002",
+      "OP_EC_POINT_MUL"
+    ],
+    "initial_stack": [],
+    "final_stack": [
+      "02c6047f9441ed7d6d3045406e95c07cd85c778e4b8cef3ca7abac09b95c709ee5"
+    ]
+  },
+  {
+    "comment": "add two 33-byte points",
+    "script": [
+      "OP_EC_POINT_ADD"
+    ],
+    "initial_stack": [
+        "03d5a5c6797a56d30378dba0484493302b5d8dc02dff2f550568641036796da612",
+        "038d1eadc80f1d0bbf345f3c5202946a0b72e2c217242f5d8c3c8bc5d5467ff0ac"
+    ],
+    "final_stack": [
+      "0284df99cc50d1ec93e9bc32c666325a389dd69a7f42777b8f1670ad66d2e622c9"
+    ]
+  }
+]
