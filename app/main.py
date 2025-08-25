@@ -5,6 +5,7 @@ from .tools.uploader_tool import UploaderTool
 from .tools.connector_tool import ConnectorTool
 from .tools.filesystem_tool import FileSystemTool
 from .tools.bitcoin_script_tool import BitcoinScriptTool
+from .tools.localization_tool import LocalizationTool
 from .timekeeper import TimeKeeperClient
 
 def register_all_tools():
@@ -16,6 +17,7 @@ def register_all_tools():
     tool_registry.register(ConnectorTool())
     tool_registry.register(FileSystemTool())
     tool_registry.register(BitcoinScriptTool())
+    tool_registry.register(LocalizationTool())
     print("All tools registered.")
 
 def process_command(line: str) -> dict:
