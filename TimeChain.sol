@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
 /**
  * @title TimeChain (Nomic Upgrade)
  * @author Jules, AI Engineer
@@ -12,8 +14,14 @@ pragma solidity ^0.8.20;
  * @dev This contract includes basic ERC-20 functionality directly to be self-contained.
  * It features a "Proof-of-Time" mining mechanism where Keepers are rewarded with $NOM
  * for extending the on-chain timeline.
+ * This version uses OpenZeppelin's AccessControl for role management.
  */
-contract TimeChain {
+contract TimeChain is AccessControl {
+
+    // =================================================================
+    // Roles
+    // =================================================================
+    bytes32 public constant KEEPER_ROLE = keccak256("KEEPER_ROLE");
 
     // =================================================================
     // ERC-20 State Variables
@@ -37,7 +45,6 @@ contract TimeChain {
     }
 
     Chronon[] public timechain;
-    address public keeper;
     uint256 public constant CHRONON_INTERVAL = 10; // 10 seconds
     uint256 public constant MINT_REWARD = 10 * 10**18; // Reward 10 NOM per chronon
 
@@ -47,13 +54,13 @@ contract TimeChain {
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
     event NewChronon(uint256 indexed blockHeight, uint256 timestamp, address indexed submittedBy, uint256 reward);
-    event KeeperUpdated(address indexed newKeeper);
 
     // =================================================================
     // Constructor
     // =================================================================
     constructor(address _initialKeeper) {
-        keeper = _initialKeeper;
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _grantRole(KEEPER_ROLE, _initialKeeper);
 
         // Create the Genesis Chronon (Block 0)
         bytes32 genesisChallenge = keccak256(abi.encodePacked(block.chainid, address(this), "GENESIS"));
@@ -73,13 +80,13 @@ contract TimeChain {
     // Core TimeChain Function ("Proof-of-Time Mining")
     // =================================================================
     function submitNewChronon(bytes memory _proof) external {
-        require(msg.sender == keeper, "TimeChain: Not the authorized Keeper.");
+        require(hasRole(KEEPER_ROLE, msg.sender), "TimeChain: Not an authorized Keeper.");
         Chronon memory latestChronon = timechain[timechain.length - 1];
         require(block.timestamp >= latestChronon.timestamp + CHRONON_INTERVAL, "TimeChain: Interval not yet passed.");
         require(verifyVDF(latestChronon.challenge, _proof), "TimeChain: Invalid VDF proof.");
 
         // Mint new tokens as a reward for the Keeper
-        _mint(keeper, MINT_REWARD);
+        _mint(msg.sender, MINT_REWARD);
 
         // Create and store the new Chronon
         uint256 newBlockHeight = timechain.length;
@@ -90,7 +97,19 @@ contract TimeChain {
             challenge: nextChallenge,
             proof: _proof
         }));
-        emit NewChronon(newBlockHeight, block.timestamp, keeper, MINT_REWARD);
+        emit NewChronon(newBlockHeight, block.timestamp, msg.sender, MINT_REWARD);
+    }
+
+    // =================================================================
+    // Role Management Functions
+    // =================================================================
+    function grantKeeperRole(address _newKeeper) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        require(_newKeeper != address(0), "TimeChain: Cannot grant role to the zero address.");
+        _grantRole(KEEPER_ROLE, _newKeeper);
+    }
+
+    function revokeKeeperRole(address _oldKeeper) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _revokeRole(KEEPER_ROLE, _oldKeeper);
     }
 
     // =================================================================
@@ -133,14 +152,6 @@ contract TimeChain {
     function verifyVDF(bytes32 _challenge, bytes memory _proof) internal pure returns (bool) {
         // Placeholder for VDF verification logic.
         return true;
-    }
-
-    function setKeeper(address _newKeeper) external {
-        // In a real system, this should be controlled by governance.
-        require(msg.sender == keeper, "TimeChain: Only current keeper can set new keeper in this prototype");
-        require(_newKeeper != address(0), "TimeChain: Cannot set keeper to zero address.");
-        keeper = _newKeeper;
-        emit KeeperUpdated(_newKeeper);
     }
 
     function getChainLength() external view returns (uint256) {
