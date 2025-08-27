@@ -13,559 +13,344 @@ load_dotenv()
 
 async def getToken(session, query):
     url = "https://tg-bot-tap.laborx.io/api/v1/auth/validate-init/v2"
-
-    payload = json.dumps({
-        "initData": f"{query}",
-        "platform": "tdesktop"
-    })
-
+    payload = json.dumps({"initData": f"{query}", "platform": "tdesktop"})
     headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'content-type': 'application/json',
-        'origin': 'https://timefarm.app',
-        'priority': 'u=1, i',
-        'referer': 'https://timefarm.app/',
-        'sec-ch-ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Microsoft Edge"
-;v="128", "Microsoft Edge WebView2";v="128"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'cross-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0'
+        'accept': '*/*', 'accept-language': 'en-US,en;q=0.9', 'content-type': 'application/json',
+        'origin': 'https://timefarm.app', 'priority': 'u=1, i', 'referer': 'https://timefarm.app/',
+        'sec-ch-ua': '"Chromium";v="128", "Not;A=Brand";v="24", "Microsoft Edge";v="128", "Microsoft Edge WebView2";v="128"',
+        'sec-ch-ua-mobile': '?0', 'sec-ch-ua-platform': '"Windows"', 'sec-fetch-dest': 'empty',
+        'sec-fetch-mode': 'cors', 'sec-fetch-site': 'cross-site',
+        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0'
     }
-
-    while True:
+    retries = 3
+    while retries > 0:
         try:
             resp = await session.post(url, headers=headers, data=payload)
-
             if resp.status_code == 200:
-                # print(resp.json())
                 return resp.json()
             else:
-                continue
+                print(f"getToken received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
         except httpx.HTTPError as e:
-            print(f"Error to getToken, try again ... {e}")
+            print(f"Error in getToken: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    print("Failed to get token after multiple retries.")
+    return None
 
 async def getInfoUser(session, token):
     url = "https://tg-bot-tap.laborx.io/api/v1/farming/info"
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}'}
+    retries = 3
+    while retries > 0:
         try:
             resp = await session.get(url, headers=headers)
-
             if resp.status_code == 200:
-                # print(resp.json())
                 return resp.json()
             else:
-                continue
+                print(f"getInfoUser received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
         except httpx.HTTPError as e:
-            print(f"Error to getInfoUser, try again ... {e}")
+            print(f"Error in getInfoUser: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def getListTask(session, token):
     url = "https://tg-bot-tap.laborx.io/api/v1/tasks"
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}'}
+    retries = 3
+    while retries > 0:
         try:
             resp = await session.get(url, headers=headers)
-
             if resp.status_code == 200:
-                # print(resp.json())
                 return resp.json()
             else:
-                continue
+                print(f"getListTask received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
         except httpx.HTTPError as e:
-            print(f"Error to getListTask, try again ... {e}")
+            print(f"Error in getListTask: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def getReffInfo(session, token):
     url = "https://tg-bot-tap.laborx.io/api/v1/referral/link"
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}'}
+    retries = 3
+    while retries > 0:
         try:
             resp = await session.get(url, headers=headers)
-
             if resp.status_code == 200:
-                # print(resp.json())
                 return resp.json()
             else:
-                continue
+                print(f"getReffInfo received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
         except httpx.HTTPError as e:
-            print(f"Error to getReffInfo, try again ... {e}")
+            print(f"Error in getReffInfo: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def startFarming(session, token):
     url = "https://tg-bot-tap.laborx.io/api/v1/farming/start"
-
-    payload = json.dumps({})
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'content-type': 'application/json',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}', 'content-type': 'application/json'}
+    retries = 3
+    while retries > 0:
         try:
-            resp = await session.post(url, headers=headers, data=payload)
-
-            if resp.status_code == 200:
-                # print(resp.json())
-                return resp.json()
-            elif resp.status_code == 403: # farming already start
-                # print(resp.json())
+            resp = await session.post(url, headers=headers, data=json.dumps({}))
+            if resp.status_code == 200 or resp.status_code == 403:
                 return resp.json()
             else:
-                continue
+                print(f"startFarming received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
         except httpx.HTTPError as e:
-            print(f"Error to startFarming, try again ... {e}")
+            print(f"Error in startFarming: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def finishFarming(session, token):
     url = "https://tg-bot-tap.laborx.io/api/v1/farming/finish"
-
-    payload = json.dumps({})
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'content-type': 'application/json',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}', 'content-type': 'application/json'}
+    retries = 3
+    while retries > 0:
         try:
-            resp = await session.post(url, headers=headers, data=payload)
-
-            if resp.status_code == 200:
-                # print(resp.json())
-                return resp.json()
-            elif resp.status_code == 403: # farming already start
-                # print(resp.json())
+            resp = await session.post(url, headers=headers, data=json.dumps({}))
+            if resp.status_code == 200 or resp.status_code == 403:
                 return resp.json()
             else:
-                continue
+                print(f"finishFarming received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
         except httpx.HTTPError as e:
-            print(f"Error to finishFarming, try again ... {e}")
+            print(f"Error in finishFarming: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def startTask(session, token, idtask):
     url = f"https://tg-bot-tap.laborx.io/api/v1/tasks/{idtask}/submissions"
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}'}
+    retries = 3
+    while retries > 0:
         try:
             resp = await session.post(url, headers=headers)
-
-            if resp.status_code == 200:
-                # print(resp.status_code)
-                # print(resp.json())
+            if resp.status_code == 200 or resp.status_code == 400:
                 return resp.json()
-            elif resp.status_code == 400:
-                # print(resp.json())
-                return resp.json() # already submitted
             else:
-                continue
-        except httpx.HTTPError as e:
-            print(f"Error to startTask, try again ... {e}")
-        except json.decoder.JSONDecodeError as e:
-            # print(f"{e}")
-            continue
+                print(f"startTask received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
+        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
+            print(f"Error in startTask: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def claimTask(session, token, idtask):
     url = f"https://tg-bot-tap.laborx.io/api/v1/tasks/{idtask}/claims"
-
-    payload = json.dumps({})
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}'}
+    retries = 3
+    while retries > 0:
         try:
-            resp = await session.post(url, headers=headers, data=payload)
-
-            if resp.status_code == 200:
-                # print(resp.json())
+            resp = await session.post(url, headers=headers, data=json.dumps({}))
+            if resp.status_code == 200 or resp.status_code == 400:
                 return resp.json()
-            elif resp.status_code == 400:
-                # print(resp.json())
-                return resp.json() # already submitted
             else:
-                continue
-        except httpx.HTTPError as e:
-            print(f"Error to claimTask, try again ... {e}")
-        except json.decoder.JSONDecodeError as e:
-            # print(f"{e}")
-            continue
+                print(f"claimTask received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
+        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
+            print(f"Error in claimTask: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def claimReff(session, token):
     url = "https://tg-bot-tap.laborx.io/api/v1/balance/referral/claim"
-
-    payload = json.dumps({})
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'content-type': 'application/json',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}', 'content-type': 'application/json'}
+    retries = 3
+    while retries > 0:
         try:
-            resp = await session.post(url, headers=headers, data=payload)
-
-            if resp.status_code == 200:
-                # print(resp.json())
+            resp = await session.post(url, headers=headers, data=json.dumps({}))
+            if resp.status_code == 200 or resp.status_code == 403:
                 return resp.json()
-            elif resp.status_code == 403:
-                # print(resp.json())
-                return resp.json() # nothing to claim
             else:
-                continue
-        except httpx.HTTPError as e:
-            print(f"Error to claimReff, try again ... {e}")
-        except json.decoder.JSONDecodeError as e:
-            # print(f"{e}")
-            continue
+                print(f"claimReff received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
+        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
+            print(f"Error in claimReff: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def upgradeLevel(session, token):
     url = "https://tg-bot-tap.laborx.io/api/v1/me/level/upgrade"
-
-    payload = json.dumps({})
-
-    headers = {
-        'accept': '*/*',
-        'accept-language': 'en-US,en;q=0.9',
-        'authorization': f'Bearer {token}',
-        'content-type': 'application/json',
-        'origin': 'https://tg-tap-miniapp.laborx.io',
-        'priority': 'u=1, i',
-        'referer': 'https://tg-tap-miniapp.laborx.io/',
-        'sec-ch-ua': '"Microsoft Edge";v="125", "Chromium";v="125", "Not.A/Brand
-";v="24", "Microsoft Edge WebView2";v="125"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-site',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537
-.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36 Edg/125.0.0.0'
-    }
-
-    while True:
+    headers = {'authorization': f'Bearer {token}', 'content-type': 'application/json'}
+    retries = 3
+    while retries > 0:
         try:
-            resp = await session.post(url, headers=headers, data=payload)
-
-            if resp.status_code == 200:
-                # print(resp.json())
+            resp = await session.post(url, headers=headers, data=json.dumps({}))
+            if resp.status_code == 200 or resp.status_code == 403:
                 return resp.json()
-            elif resp.status_code == 403:
-                # print(resp.json())
-                return resp.json() # "message": "Max level reached", message': '
-Not enough balance',
             else:
-                continue
-        except httpx.HTTPError as e:
-            print(f"Error to upgradeLevel, try again ... {e}")
-        except json.decoder.JSONDecodeError as e:
-            # print(f"{e}")
-            continue
+                print(f"upgradeLevel received status code {resp.status_code}. Retrying...")
+                retries -= 1
+                await asyncio.sleep(1)
+        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
+            print(f"Error in upgradeLevel: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    return None
 
 async def runGetToken():
     try:
         with open('query.txt', 'r') as qf:
             querys = qf.readlines()
-            async with httpx.AsyncClient() as session:
-                for i in range(len(querys)):
-                    # print(querys[i].strip())
-                    query = querys[i].strip()
 
-                    get_token = await getToken(session, query)
-                    levelnow = get_token['info']['level']
+        valid_tokens = []
+        async with httpx.AsyncClient() as session:
+            for i, query in enumerate(querys):
+                query = query.strip()
+                if not query:
+                    continue
+
+                print(f"Processing query {i+1}...")
+                get_token = await getToken(session, query)
+
+                if get_token and 'token' in get_token:
+                    levelnow = get_token.get('info', {}).get('level')
                     token = get_token['token']
-                    level = get_token['levelDescriptions']
+                    level = get_token.get('levelDescriptions')
+                    valid_tokens.append(f"{levelnow}|{token}|{level}\n")
+                    print(f"Token created for query {i+1}.")
+                else:
+                    print(f"Failed to create token for query {i+1}. Skipping.")
 
-                    querys[i] = f"{levelnow}|{token}|{level}\n"
+        with open('tokens.txt', 'w+') as tf:
+            tf.writelines(valid_tokens)
 
-                    with open('tokens.txt', 'w+') as tf:
-                        tf.writelines(querys)
-        print("Create token success!")
+        if valid_tokens:
+            print("Create token success!")
+        else:
+            print("No valid tokens were created. Please check your query.txt file.")
+
     except FileNotFoundError:
-        qf = open('query.txt', 'w')
-        print("Fill the query.txt first!")
-        qf.write("query1\nquery2\ndst...")
-        qf.close()
+        with open('query.txt', 'w') as qf:
+            print("Fill the query.txt first!")
+            qf.write("query1\nquery2\ndst...")
         exit()
-
-def countLength(n):
-    num = str(n)
-    return len(num)
 
 async def runAll(levelnow, token, index, upgradelist):
     async with httpx.AsyncClient() as session:
         info = await getInfoUser(session, token)
+        if not info: return
         list_task = await getListTask(session, token)
+        if not list_task: return
         reff_info = await getReffInfo(session, token)
+        if not reff_info: return
 
-        balance = float(info['balance'])
-        farming_duration = int(info['farmingDurationInSec']/60/60)
-        farming_reward = info['farmingReward']
-        total_reff = reff_info['userCount']
+        balance = float(info.get('balance', 0))
+        farming_duration = int(info.get('farmingDurationInSec', 0)/3600)
+        farming_reward = info.get('farmingReward', 0)
+        total_reff = reff_info.get('userCount', 0)
 
-        if total_reff > 0:
-            status_reff = f"{Fore.GREEN}{total_reff}{Style.RESET_ALL}"
-        else:
-            status_reff = total_reff
+        status_reff = f"{Fore.GREEN}{total_reff}{Style.RESET_ALL}" if total_reff > 0 else total_reff
 
-        start_farm = await startFarming(session, token) #if message/error in sta
-rtFarming: farming started
+        start_farm = await startFarming(session, token)
         claim_farm = await finishFarming(session, token)
 
-        status_farm = "-"
-        if 'error' in start_farm:
-            status_farm = f"{Fore.YELLOW}Farming{Style.RESET_ALL}"
-        else:
-            status_farm = f"{Fore.GREEN}Farming started{Style.RESET_ALL}"
+        status_farm = f"{Fore.YELLOW}Farming{Style.RESET_ALL}" if start_farm and 'error' in start_farm else f"{Fore.GREEN}Farming started{Style.RESET_ALL}"
 
-        if os.getenv("AUTO_TASKS") == "true" or os.getenv("AUTO_TASKS") == "yes"
- or os.getenv("AUTO_TASKS") == "y":
+        if os.getenv("AUTO_TASKS", "false").lower() in ["true", "yes", "y"]:
             status_task = f"{Fore.GREEN}On{Style.RESET_ALL}"
             for i in list_task:
                 idtask = i['id']
                 await startTask(session, token, idtask)
-
-            for i in list_task:
-                idtask = i['id']
                 await claimTask(session, token, idtask)
-
             status_task = f"{Fore.GREEN}All task completed{Style.RESET_ALL}"
         else:
             status_task = "Off"
 
-        if os.getenv("AUTO_CLAIM_REFF") == "true" or os.getenv("AUTO_CLAIM_REFF"
-) == "yes" or os.getenv("AUTO_CLAIM_REFF") == "y":
+        if os.getenv("AUTO_CLAIM_REFF", "false").lower() in ["true", "yes", "y"]:
             status_autoclaimreff = f"{Fore.GREEN}On{Style.RESET_ALL}"
             claimreff_res = await claimReff(session, token)
-            if 'error' in claimreff_res:
-                status_autoclaimreff = f"{Fore.YELLOW}{claimreff_res['error']['m
-essage']}{Style.RESET_ALL}"
+            if claimreff_res and 'error' in claimreff_res:
+                status_autoclaimreff = f"{Fore.YELLOW}{claimreff_res['error']['message']}{Style.RESET_ALL}"
             else:
                 status_autoclaimreff = f"{Fore.GREEN}Success{Style.RESET_ALL}"
         else:
             status_autoclaimreff = "Off"
 
-        if os.getenv("AUTO_UPGRADE") == "true":
+        if os.getenv("AUTO_UPGRADE", "false").lower() == "true":
             status_upgrade = f"{Fore.GREEN}On{Style.RESET_ALL}"
-            for i in upgradelist:
-                if 'price' in i:
-                    if i['price'] != -1 and i['level'] > levelnow and balance >
-i['price']:
+            if isinstance(upgradelist, list):
+                for i in upgradelist:
+                    if isinstance(i, dict) and 'price' in i and i['price'] != -1 and i['level'] > levelnow and balance > i['price']:
                         await upgradeLevel(session, token)
-                    else:
-                        pass
         else:
             status_upgrade = "Off"
 
-        lengcount = countLength(index)
-
-        if lengcount == 1:
-            print(f"[Account 0{index}] | Level : {levelnow} | Balance : {Fore.GR
-EEN}{int(balance)}{Style.RESET_ALL} | Reward : {farming_reward}/{farming_duration
-} hours | Status : {status_farm} | Tasks : {status_task} | Auto upgrade : {stat
-us_upgrade} | Referral : {status_reff} ")
-        else:
-            print(f"[Account {index}] | Level : {levelnow} | Balance : {Fore.GRE
-EN}{int(balance)}{Style.RESET_ALL} | Reward : {farming_reward}/{farming_duration
-} hours | Status : {status_farm} | Tasks : {status_task} | Auto upgrade : {statu
-s_upgrade} | Referral : {status_reff} ")
+        print(f"[Account {index:02d}] | Level: {levelnow} | Balance: {Fore.GREEN}{int(balance)}{Style.RESET_ALL} | Reward: {farming_reward}/{farming_duration}h | Status: {status_farm} | Tasks: {status_task} | Auto upgrade: {status_upgrade} | Referral: {status_reff}")
 
 async def main():
-    # query = ""
-
-    os.system("cls" if os.name == "nt" else "clear") # remove the printed
-
+    os.system("cls" if os.name == "nt" else "clear")
     print("Create token started")
     await runGetToken()
 
-    sekarang = time.time()
-    nanti = time.time() + int(os.getenv("REFRESH_TOKEN"))
+    refresh_interval = int(os.getenv("REFRESH_CLAIM", 3600))
+    token_refresh_time = int(os.getenv("REFRESH_TOKEN", 86400))
+    next_token_refresh = time.time() + token_refresh_time
 
-    while sekarang < nanti:
-        print("""
- _   _                   __                        _           _
-| |_(_)_ __ ___   ___   / _| __ _ _ __ _ __ ___   | |__   ___ | |_
-| __| | '_ ` _ \ / _ \ | |_ / _` | '__| '_ ` _ \  | '_ \ / _ \| __|
-| |_| | | | | | |  __/ |  _| (_| | |  | | | | | | | |_) | (_) | |_
- \__|_|_| |_| |_|\___| |_|  \__,_|_|  |_| |_| |_| |_.__/ \___/ \__|
+    while True:
+        print("\n" + Fore.CYAN + "Starting new cycle..." + Style.RESET_ALL)
+        start_cycle = time.time()
 
-              """)
-        start = time.time()
+        try:
+            with open('tokens.txt', 'r') as tf:
+                tokens = [line.strip() for line in tf.readlines() if line.strip()]
+        except FileNotFoundError:
+            print("tokens.txt not found. Please run token generation first.")
+            break
+
+        if not tokens:
+            print("No tokens found in tokens.txt. Exiting.")
+            break
+
         schedules = []
-        with open('tokens.txt', 'r') as tf:
-            tokens = tf.readlines()
-            for i in range(len(tokens)):
-                # print(tokens[i].strip())
-                token_auth = tokens[i].strip().split("|")
-                # print(token_auth[0])
-                upgradelist = ast.literal_eval(token_auth[2])
-                schedules.append(asyncio.create_task(runAll(token_auth[0], token
-_auth[1], i+1, upgradelist)))
+        for i, token_line in enumerate(tokens):
+            try:
+                levelnow, token, upgradelist_str = token_line.split("|", 2)
+                upgradelist = ast.literal_eval(upgradelist_str)
+                schedules.append(asyncio.create_task(runAll(levelnow, token, i + 1, upgradelist)))
+            except (ValueError, SyntaxError) as e:
+                print(f"Error parsing token line {i+1}: {e}. Skipping.")
 
-        # gather to run concurently
-        await asyncio.gather(*schedules) # BOOOMMMM TO RUN
+        if schedules:
+            await asyncio.gather(*schedules)
 
-        print("")
-        finish = time.time()-start
-        #################### CHANGE THE REFRESH HERE ####################
-        claim_remaining = int(os.getenv("REFRESH_CLAIM")) # set to 2 menit or 12
-0 seconds
-        refresh_token_at = datetime.datetime.fromtimestamp(nanti).strftime("%H:%
-M:%S")
-        ###############################################################
+        cycle_duration = time.time() - start_cycle
+        print(f"\nCycle finished in {cycle_duration:.2f} seconds.")
 
-        while claim_remaining:
-            hour, secs = divmod(claim_remaining, 60)
-            timer = '{:02d}'.format(secs)
-            print(f"Execution time : {Fore.YELLOW}{round(finish, 2)}{Style.RESET
-_ALL} seconds | Refresh tokens after : {Fore.YELLOW}{refresh_token_at}{Style.RES
-ET_ALL} | Refresh after : {Fore.YELLOW}{timer}{Style.RESET_ALL} seconds", end="\
-r")
-            time.sleep(1)
-            claim_remaining -= 1
-
-        sekarang = time.time() + int(os.getenv("REFRESH_CLAIM"))
-        if sekarang >= nanti:
-            print("")
-            print("Refresh tokens started!")
+        if time.time() > next_token_refresh:
+            print("\nRefreshing tokens...")
             await runGetToken()
-            time.sleep(2)
-            nanti = time.time() + int(os.getenv("REFRESH_TOKEN"))
+            next_token_refresh = time.time() + token_refresh_time
+            print("Token refresh complete.")
 
-        os.system("cls" if os.name == "nt" else "clear") # remove the printed
+        remaining_time = refresh_interval - cycle_duration
+        if remaining_time > 0:
+            print(f"Waiting for {remaining_time:.0f} seconds before next cycle...")
+            await asyncio.sleep(remaining_time)
 
 if __name__ == "__main__":
-    # Set the policy to prevent "Event loop is closed" error on Windows - https:
-//github.com/encode/httpx/issues/914
-    asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+    if os.name == 'nt':
+        asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
     asyncio.run(main())
