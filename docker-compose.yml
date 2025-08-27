@@ -5,3 +5,7 @@ services:
     environment:
       ZERO_GITHUB_TOKEN: ${ZERO_GITHUB_TOKEN}
     depends_on: [ nats ]
+  nats:
+    image: nats:latest
+    ports:
+      - "4222:4222"
