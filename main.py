@@ -11,8 +11,37 @@ import ast
 init()
 load_dotenv()
 
+BASE_URL = "https://tg-bot-tap.laborx.io/api/v1"
+
+async def make_api_request(session, method: str, url: str, success_codes: list[int], headers: dict = None, data: str = None):
+    func_name = url.split('/')[-1] # For logging
+    retries = 3
+    while retries > 0:
+        try:
+            if method.upper() == 'POST':
+                resp = await session.post(url, headers=headers, data=data)
+            else:
+                resp = await session.get(url, headers=headers)
+
+            if resp.status_code in success_codes:
+                return resp.json()
+
+            # Also return the json for expected error messages, as the original code did
+            if resp.status_code in [400, 403]:
+                return resp.json()
+
+            print(f"{func_name} received status code {resp.status_code}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
+            print(f"Error in {func_name}: {e}. Retrying...")
+            retries -= 1
+            await asyncio.sleep(1)
+    print(f"Failed to get data from {func_name} after multiple retries.")
+    return None
+
 async def getToken(session, query):
-    url = "https://tg-bot-tap.laborx.io/api/v1/auth/validate-init/v2"
+    url = f"{BASE_URL}/auth/validate-init/v2"
     payload = json.dumps({"initData": f"{query}", "platform": "tdesktop"})
     headers = {
         'accept': '*/*', 'accept-language': 'en-US,en;q=0.9', 'content-type': 'application/json',
@@ -22,193 +51,52 @@ async def getToken(session, query):
         'sec-fetch-mode': 'cors', 'sec-fetch-site': 'cross-site',
         'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36 Edg/128.0.0.0'
     }
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.post(url, headers=headers, data=payload)
-            if resp.status_code == 200:
-                return resp.json()
-            else:
-                print(f"getToken received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except httpx.HTTPError as e:
-            print(f"Error in getToken: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    print("Failed to get token after multiple retries.")
-    return None
+    return await make_api_request(session, 'POST', url, success_codes=[200], headers=headers, data=payload)
 
 async def getInfoUser(session, token):
-    url = "https://tg-bot-tap.laborx.io/api/v1/farming/info"
+    url = f"{BASE_URL}/farming/info"
     headers = {'authorization': f'Bearer {token}'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.get(url, headers=headers)
-            if resp.status_code == 200:
-                return resp.json()
-            else:
-                print(f"getInfoUser received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except httpx.HTTPError as e:
-            print(f"Error in getInfoUser: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'GET', url, success_codes=[200], headers=headers)
 
 async def getListTask(session, token):
-    url = "https://tg-bot-tap.laborx.io/api/v1/tasks"
+    url = f"{BASE_URL}/tasks"
     headers = {'authorization': f'Bearer {token}'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.get(url, headers=headers)
-            if resp.status_code == 200:
-                return resp.json()
-            else:
-                print(f"getListTask received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except httpx.HTTPError as e:
-            print(f"Error in getListTask: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'GET', url, success_codes=[200], headers=headers)
 
 async def getReffInfo(session, token):
-    url = "https://tg-bot-tap.laborx.io/api/v1/referral/link"
+    url = f"{BASE_URL}/referral/link"
     headers = {'authorization': f'Bearer {token}'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.get(url, headers=headers)
-            if resp.status_code == 200:
-                return resp.json()
-            else:
-                print(f"getReffInfo received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except httpx.HTTPError as e:
-            print(f"Error in getReffInfo: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'GET', url, success_codes=[200], headers=headers)
 
 async def startFarming(session, token):
-    url = "https://tg-bot-tap.laborx.io/api/v1/farming/start"
+    url = f"{BASE_URL}/farming/start"
     headers = {'authorization': f'Bearer {token}', 'content-type': 'application/json'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.post(url, headers=headers, data=json.dumps({}))
-            if resp.status_code == 200 or resp.status_code == 403:
-                return resp.json()
-            else:
-                print(f"startFarming received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except httpx.HTTPError as e:
-            print(f"Error in startFarming: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'POST', url, success_codes=[200, 403], headers=headers, data=json.dumps({}))
 
 async def finishFarming(session, token):
-    url = "https://tg-bot-tap.laborx.io/api/v1/farming/finish"
+    url = f"{BASE_URL}/farming/finish"
     headers = {'authorization': f'Bearer {token}', 'content-type': 'application/json'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.post(url, headers=headers, data=json.dumps({}))
-            if resp.status_code == 200 or resp.status_code == 403:
-                return resp.json()
-            else:
-                print(f"finishFarming received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except httpx.HTTPError as e:
-            print(f"Error in finishFarming: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'POST', url, success_codes=[200, 403], headers=headers, data=json.dumps({}))
 
 async def startTask(session, token, idtask):
-    url = f"https://tg-bot-tap.laborx.io/api/v1/tasks/{idtask}/submissions"
+    url = f"{BASE_URL}/tasks/{idtask}/submissions"
     headers = {'authorization': f'Bearer {token}'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.post(url, headers=headers)
-            if resp.status_code == 200 or resp.status_code == 400:
-                return resp.json()
-            else:
-                print(f"startTask received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
-            print(f"Error in startTask: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'POST', url, success_codes=[200, 400], headers=headers)
 
 async def claimTask(session, token, idtask):
-    url = f"https://tg-bot-tap.laborx.io/api/v1/tasks/{idtask}/claims"
+    url = f"{BASE_URL}/tasks/{idtask}/claims"
     headers = {'authorization': f'Bearer {token}'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.post(url, headers=headers, data=json.dumps({}))
-            if resp.status_code == 200 or resp.status_code == 400:
-                return resp.json()
-            else:
-                print(f"claimTask received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
-            print(f"Error in claimTask: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'POST', url, success_codes=[200, 400], headers=headers, data=json.dumps({}))
 
 async def claimReff(session, token):
-    url = "https://tg-bot-tap.laborx.io/api/v1/balance/referral/claim"
+    url = f"{BASE_URL}/balance/referral/claim"
     headers = {'authorization': f'Bearer {token}', 'content-type': 'application/json'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.post(url, headers=headers, data=json.dumps({}))
-            if resp.status_code == 200 or resp.status_code == 403:
-                return resp.json()
-            else:
-                print(f"claimReff received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
-            print(f"Error in claimReff: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'POST', url, success_codes=[200, 403], headers=headers, data=json.dumps({}))
 
 async def upgradeLevel(session, token):
-    url = "https://tg-bot-tap.laborx.io/api/v1/me/level/upgrade"
+    url = f"{BASE_URL}/me/level/upgrade"
     headers = {'authorization': f'Bearer {token}', 'content-type': 'application/json'}
-    retries = 3
-    while retries > 0:
-        try:
-            resp = await session.post(url, headers=headers, data=json.dumps({}))
-            if resp.status_code == 200 or resp.status_code == 403:
-                return resp.json()
-            else:
-                print(f"upgradeLevel received status code {resp.status_code}. Retrying...")
-                retries -= 1
-                await asyncio.sleep(1)
-        except (httpx.HTTPError, json.decoder.JSONDecodeError) as e:
-            print(f"Error in upgradeLevel: {e}. Retrying...")
-            retries -= 1
-            await asyncio.sleep(1)
-    return None
+    return await make_api_request(session, 'POST', url, success_codes=[200, 403], headers=headers, data=json.dumps({}))
 
 async def runGetToken():
     try:
