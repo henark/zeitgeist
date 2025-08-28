@@ -1,9 +1,9 @@
 import asyncio, json, os, time
 from pathlib import Path
 from fastapi import FastAPI
-from bus import BusClient
-from ledger import Ledger
-from github import open_pr
+from tools.bus import BusClient
+from tools.ledger import Ledger
+from tools.github import open_pr
 from planner import next_task
 
 app = FastAPI()
@@ -20,3 +20,7 @@ async def start_loop():
         patch = task.generate_patch()
         pr = open_pr(task.title, patch, task.rationale)
         ledger.append({"coh": coh, "task": task.id, "pr": pr})
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)

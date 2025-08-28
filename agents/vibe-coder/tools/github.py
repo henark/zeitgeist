@@ -1,14 +1,32 @@
-import os, tempfile, subprocess
-from github import Github
-GH = Github(os.getenv("ZERO_GITHUB_TOKEN"))
-REPO = GH.get_repo("Aurumgrid/Z-n-")
+import os
+from github import Github, Auth
+from github.GithubException import BadCredentialsException
 
-def open_pr(title, patch, rationale):
-    branch = f"auto/{int(time.time())}"
-    subprocess.run(["git", "checkout", "-b", branch], check=True)
-    subprocess.run(["git", "apply"], input=patch.encode(), check=True)
-    subprocess.run(["git", "add", "."], check=True)
-    subprocess.run(["git", "commit", "-m", f"{title}\n\n{rationale}"], check=True)
-    subprocess.run(["git", "push", "origin", branch], check=True)
-    pr = REPO.create_pull(title=title, body=rationale, head=branch, base="main")
-    return pr.html_url
+GH = Github(os.getenv("ZERO_GITHUB_TOKEN"))
+REPO = None
+
+try:
+    REPO = GH.get_repo("Aurumgrid/Z-n-")
+except BadCredentialsException:
+    print("Warning: Bad GitHub credentials. GitHub integration will be disabled.")
+except Exception as e:
+    print(f"An unexpected error occurred while connecting to GitHub: {e}")
+
+
+def open_pr(branch_name: str, title: str, body: str):
+    if not REPO:
+        print("Error: Cannot open pull request, GitHub repository not available.")
+        return
+
+    try:
+        pr = REPO.create_pull(
+            title=title,
+            body=body,
+            head=branch_name,
+            base=REPO.default_branch,
+        )
+        print(f"Pull request opened: {pr.html_url}")
+        return pr
+    except Exception as e:
+        print(f"Failed to open pull request: {e}")
+        return None
