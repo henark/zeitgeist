@@ -3,7 +3,7 @@ services:
     build: ./agents/vibe-coder
     volumes: [ ".:/repo" ]
     environment:
-      ZERO_GITHUB_TOKEN: ${ZERO_GITHUB_TOKEN}
+      ZERO_GITHUB_TOKEN: ${ZERO_GITHUB_TOKEN:-dummy_token_for_local_dev}
     depends_on: [ nats ]
   nats:
     image: nats:latest
