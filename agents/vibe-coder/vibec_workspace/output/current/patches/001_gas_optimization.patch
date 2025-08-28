@@ -1,5 +1,0 @@
---- a/TimeChain.sol
-+++ b/TimeChain.sol
-@@ -1,1 +1,1 @@
--contract TimeChain {}
-+contract TimeChain { uint256 gas_optimized; }
