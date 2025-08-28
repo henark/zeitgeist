@@ -1,0 +1,6 @@
+{
+  "stacks": ["core"],
+  "output": "output",
+  "apiModel": "anthropic/claude-3.5-sonnet",
+  "testCmd": "npm test"
+}
