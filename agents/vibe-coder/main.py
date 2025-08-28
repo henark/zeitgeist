@@ -15,11 +15,22 @@ async def start_loop():
     bus = BusClient()
     ledger = Ledger(LEDGER_FILE)
     while True:
+        print("Waiting for next coherence signal...")
         coh = await bus.next_coherence()
         task = next_task(coh, ledger)
-        patch = task.generate_patch()
-        pr = open_pr(task.title, patch, task.rationale)
-        ledger.append({"coh": coh, "task": task.id, "pr": pr})
+
+        if task:
+            print(f"Task selected: {task.id}. Generating patch...")
+            patch = task.generate_patch()
+            print("Patch generated. Opening PR...")
+            pr = open_pr(task.title, patch, task.rationale)
+            ledger.append({"coh": coh, "task": task.id, "pr": pr})
+            print(f"PR opened and action logged: {pr}")
+        else:
+            print("No task selected for this coherence signal. Continuing.")
+
+        # Sleep to prevent busy-waiting
+        await asyncio.sleep(1)
 
 if __name__ == "__main__":
     import uvicorn
